@@ -10,7 +10,6 @@ browser.runtime.onConnect.addListener(port => {
                 sep[sep.length - 1].push(options[i]);
             }
             
-            console.log(sep);
             const questions = document.querySelectorAll(".lrn_question");
 
             let csvTxt = "";
