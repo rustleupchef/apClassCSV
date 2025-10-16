@@ -28,7 +28,7 @@ browser.runtime.onConnect.addListener(port => {
                     set.push(optionsSet[j]);
                 }
                 
-                csvTxt += `"${questions[i].innerText}","${set[0].innerText.substring(1)}","${set[1].innerText.substring(1)}","${set[2].innerText.substring(1)}","${set[3].innerText.substring(1)}",20,"${0}"\n`
+                csvTxt += `"${questions[i].innerText}","${set[0].innerText.substring(1)}","${set[1].innerText.substring(1)}","${set[2].innerText.substring(1)}","${set[3].innerText.substring(1)}",20,"${1}"\n`
             }
 
             port.postMessage({response: csvTxt});
