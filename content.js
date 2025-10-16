@@ -10,7 +10,7 @@ browser.runtime.onConnect.addListener(port => {
                 sep[sep.length - 1].push(options[i]);
             }
             
-            const questions = document.querySelectorAll(".lrn_question p");
+            const questions = document.querySelectorAll(".lrn_question");
 
             console.log(questions);
             console.log(sep);
@@ -40,7 +40,7 @@ browser.runtime.onConnect.addListener(port => {
                     }
                 }
                 
-                csvTxt += `"${questions[i].innerText}","${set[0].innerText.replace("\n", " ")}","${set[1].innerText.replace("\n", " ")}","${set[2].innerText.replace("\n", " ")}","${set[3].innerText.replace("\n", " ")}",20,"${index}"\n`
+                csvTxt += `"${questions[i].innerText}","${set[0].innerText.substring(1)}","${set[1].innerText.substring(1)}","${set[2].innerText.substring(1)}","${set[3].innerText.substring(1)}",20,"${index + 1}"\n`
             }
 
             port.postMessage({response: csvTxt});
