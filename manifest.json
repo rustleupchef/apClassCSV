@@ -5,7 +5,8 @@
     "description": "Is able to convert ap class room webpages to a csv for blooket",
     "permissions": ["activeTab", "scripting"],
     "browser_action": {
-        "default_popup": "popup/popup.html"
+        "default_popup": "popup/popup.html",
+        "default_icon": "icons/AP.png"
     },
     "content_scripts": [
         {
