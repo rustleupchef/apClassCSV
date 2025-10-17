@@ -9,17 +9,17 @@ browser.runtime.onConnect.addListener(port => {
                 }
                 sep[sep.length - 1].push(options[i]);
             }
-            
             const questions = document.querySelectorAll(".lrn_question");
 
             let csvTxt = "";
             for (let i = 0; i < questions.length; i++) {
+                let set = [];
                 csvTxt += (i + 1).toString() + ",";
                 let optionsSet = sep[i];
 
                 for (let j = 0; j < optionsSet.length; j++) {
                     if (optionsSet[j].classList.contains("--correct")) {
-                        var set = optionsSet.splice(j, 1);
+                        set = optionsSet.splice(j, 1);
                     }
                 }
 
@@ -27,7 +27,7 @@ browser.runtime.onConnect.addListener(port => {
                     set.push(optionsSet[j]);
                 }
                 
-                csvTxt += `"${questions[i].innerText}","${set[0].innerText.substring(1)}","${set[1].innerText.substring(1)}","${set[2].innerText.substring(1)}","${set[3].innerText.substring(1)}",20,"${1}"\n`
+                csvTxt += `"${questions[i].innerText}","${set[0] ? set[0].innerText.substring(1) : ""}","${set[1] ? set[1].innerText.substring(1) : ""}","${set[2] ? set[2].innerText.substring(1) : ""}","${set[3] ? set[3].innerText.substring(1) : ""}",20,"${1}"\n`
             }
 
             port.postMessage({response: csvTxt});
