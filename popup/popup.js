@@ -1,4 +1,4 @@
-const csvText = `Blooket Template\nQuestion #,Question Text,Answer 1,Answer 2,"Answer 3\n(Optional)","Answer 4\n(Optional)","Time Limit (sec)\n(Max: 300 seconds)","Correct Answer(s)\n(Only include\nAnswer #)"\n`;
+const csvText = `Blooket Template,,,,,,,\nQuestion #,Question Text,Answer 1,Answer 2,"Answer 3\n(Optional)","Answer 4\n(Optional)","Time Limit (sec)\n(Max: 300 seconds)","Correct Answer(s)\n(Only include\nAnswer #)"\n`;
 
 document.addEventListener("DOMContentLoaded", () => {
     const save = document.getElementById("save");
