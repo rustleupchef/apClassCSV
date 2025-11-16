@@ -13,9 +13,17 @@ document.addEventListener("DOMContentLoaded", () => {
             downloadFile("download.csv", csvText + msg.response);
         });
     });
+
+    const answer = document.getElementById("answer");
+    
+    answer.addEventListener("click", async () => {
+        let tabs = await browser.tabs.query({active: true, currentWindow: true});
+        let port = browser.tabs.connect(tabs[0].id, {name: "popup-port"});
+        port.postMessage({ message: "ANSWER" });
+    });
 });
 
- function downloadFile(filename, textData) {
+function downloadFile(filename, textData) {
     const node = Object.assign(document.createElement('a'), {
         href: `data:text/plain;charset=utf-8,${encodeURIComponent(textData)}`,
         download: filename,

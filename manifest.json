@@ -3,7 +3,7 @@
     "name": "AP Class to Blooket",
     "version": "1.2",
     "description": "Is able to convert ap class room webpages to a csv for blooket",
-    "permissions": ["activeTab", "scripting"],
+    "permissions": ["activeTab", "scripting", "*://generativelanguage.googleapis.com/*", "https://assets.learnosity.com/*"],
     "browser_action": {
         "default_popup": "popup/popup.html",
         "default_icon": "icons/AP.png"
