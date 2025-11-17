@@ -83,12 +83,16 @@ async function answer() {
         console.log(data);
 
         if (!version && data.error) {
-            let message = data.error.message.split(" ");
-            let waitTime = message[message.length - 1];
-            if (waitTime.endsWith("ms.")) {
-                await sleep(parseInt(waitTime.slice(0, -3)) + 1000);
+            if (data.error.code === 503) {
+                await sleep(2 * 60 * 1000);
             } else {
-                await sleep(parseInt(parseFloat(waitTime.slice(0, -2)) * 1000) + 1000);
+                let message = data.error.message.split(" ");
+                let waitTime = message[message.length - 1];
+                if (waitTime.endsWith("ms.")) {
+                    await sleep(parseInt(waitTime.slice(0, -3)) + 1000);
+                } else {
+                    await sleep(parseInt(parseFloat(waitTime.slice(0, -2)) * 1000) + 1000);
+                }
             }
 
             response = await fetch(url, {
