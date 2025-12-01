@@ -6,10 +6,75 @@ browser.runtime.onConnect.addListener(port => {
                 port.disconnect();
             } else if (msg.message === "ANSWER") {
                 answer();
+            } else if (msg.message === "FORMAT") {
+                format();
             }
         });
     }
 });
+
+function selectFile(accepted) {
+    return new Promise((resolve) => {
+        const input = document.createElement('input');
+        input.style = "position:fixed;top:10px;right:10px;z-index:999999;";
+        input.type = 'file';
+        input.accept = accepted;
+        document.body.appendChild(input);
+        input.addEventListener('change', () => {
+            const file = input.files[0];
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                resolve(e.target.result);
+            };
+            reader.readAsText(file);
+            document.body.removeChild(input);
+        });
+    });
+}
+
+function indexOfLetter(letter) {
+    try {
+        return parseInt(letter);
+    } catch (e) {
+        return letter.toUpperCase().charCodeAt(0) - 65 + 1;
+    }
+}
+
+async function format() {
+    const questions = await selectFile('.json');
+    const answerKeys = await selectFile('.json');
+
+    const questionsJson = JSON.parse(questions);
+    const answersJson = JSON.parse(answerKeys);
+
+    let csvText = `Blooket Template,,,,,,,\nQuestion #,Question Text,Answer 1,Answer 2,"Answer 3\n(Optional)","Answer 4\n(Optional)","Time Limit (sec)\n(Max: 300 seconds)","Correct Answer(s)\n(Only include\nAnswer #)"\n`;
+
+    for (let i = 0; i < questionsJson.length; i++) {
+        const q = questionsJson[i];
+        const a = answersJson[i];
+
+        const question = `Question: ${q.question}; Passage: ${q.passage ? q.passage : ''}`;
+        let options = q.options;
+        let set = [];
+        let answerIndex = indexOfLetter(a.answer);
+        
+        set.push(options[answerIndex - 1]);
+        for (let j = 0; j < options.length && set.length < 4; j++) {
+            if (options[j] !== set[0]) {
+                set.push(options[j]);
+            }
+        }
+
+        let answer = set[0];
+        set = shuffleArray(set);
+
+        let correctIndex = set.indexOf(answer) + 1;
+
+        csvText += `${i + 1},"${question}","${set[0] ? set[0] : ""}","${set[1] ? set[1] : ""}","${set[2] ? set[2] : ""}","${set[3] ? set[3] : ""}",20,"${correctIndex}"\n`;
+    }
+
+    downloadFile("formatted_questions.csv", csvText);
+}
 
 async function answer() {
     const apiKey = prompt("Enter your API key or Type GRAB if you want don't care about the answer:");
@@ -17,6 +82,8 @@ async function answer() {
     
     const qTag = document.querySelector(".h-\\[32px\\] > span:nth-child(2)").innerText.split(" of ");
     const totalQuestion = parseInt(qTag[1]);
+
+    let jsonFormat = [];
 
     if (parseInt(qTag[0]) !== 1) {
         alert("Please make sure you are on the first question of the set.");
@@ -123,6 +190,13 @@ async function answer() {
         }
 
         csvText += !version ? `"${extractInteger(text)}"\n` : "\n"
+        jsonFormat.push({
+            question: question.innerText,
+            passage: passage ? passage.innerText : null,
+            options: Array.from(options).map(opt => opt.innerText),
+            images: Array.from(questionImages).map(img => img.src),
+            answer: !version ? extractInteger(text) : null
+        });
 
         nextButton.click();
         await sleep(!version ? 4000 : 1000);
@@ -130,6 +204,7 @@ async function answer() {
     }
 
     downloadFile("answers.csv", csvText);
+    downloadFile("answers.json", JSON.stringify(jsonFormat, null, 2));
 }
 
 function extractInteger(str) {

@@ -2,24 +2,27 @@ const csvText = `Blooket Template,,,,,,,\nQuestion #,Question Text,Answer 1,Answ
 
 document.addEventListener("DOMContentLoaded", () => {
     const save = document.getElementById("save");
-
     save.addEventListener("click", async () => {
         let tabs = await browser.tabs.query({active: true, currentWindow: true});
         let port = browser.tabs.connect(tabs[0].id, {name: "popup-port"});
-
         port.postMessage({ message: "GRAB" });
-
         port.onMessage.addListener(msg => {
             downloadFile("download.csv", csvText + msg.response);
         });
     });
 
     const answer = document.getElementById("answer");
-    
     answer.addEventListener("click", async () => {
         let tabs = await browser.tabs.query({active: true, currentWindow: true});
         let port = browser.tabs.connect(tabs[0].id, {name: "popup-port"});
         port.postMessage({ message: "ANSWER" });
+    });
+
+    const format = document.getElementById("format");
+    format.addEventListener("click", async () => {
+        let tabs = await browser.tabs.query({active: true, currentWindow: true});
+        let port = browser.tabs.connect(tabs[0].id, {name: "popup-port"});
+        port.postMessage({ message: "FORMAT"});
     });
 });
 
