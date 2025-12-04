@@ -8,6 +8,8 @@ browser.runtime.onConnect.addListener(port => {
                 answer();
             } else if (msg.message === "FORMAT") {
                 format();
+            } else if (msg.message === "FILL") {
+                fill();
             }
         });
     }
@@ -33,10 +35,37 @@ function selectFile(accepted) {
 }
 
 function indexOfLetter(letter) {
-    try {
-        return parseInt(letter);
-    } catch (e) {
-        return letter.toUpperCase().charCodeAt(0) - 65 + 1;
+    const num = parseInt(letter);
+    if (!isNaN(num)) {
+        return num;
+    }
+    return letter.toUpperCase().charCodeAt(0) - 65 + 1;
+}
+
+async function fill() {
+    const answers = await selectFile('.json');
+    const answersJson = JSON.parse(answers);
+
+    const qTag = document.querySelector(".h-\\[32px\\] > span:nth-child(2)").innerText.split(" of ");
+    const totalQuestion = parseInt(qTag[1]);
+
+    if (parseInt(qTag[0]) !== 1) {
+        alert("Please make sure you are on the first question of the set.");
+        return;
+    }
+
+    let nextButton = document.querySelector("[data-test-id='next-button']");
+    for (let i = 0; i < totalQuestion; i++) {
+        const viewPort = document.querySelectorAll(".lrn-assess-content")[i];
+        const options = viewPort.querySelectorAll(".lrn-mcq-option");
+
+        const answerIndex = indexOfLetter(answersJson[i].answer);
+        options[answerIndex - 1].children[0].click();
+        await sleep(500);
+
+        nextButton.click();
+        await sleep(1000);
+        nextButton = document.querySelector("[data-test-id='next-button']");
     }
 }
 

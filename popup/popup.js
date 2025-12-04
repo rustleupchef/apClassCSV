@@ -24,6 +24,13 @@ document.addEventListener("DOMContentLoaded", () => {
         let port = browser.tabs.connect(tabs[0].id, {name: "popup-port"});
         port.postMessage({ message: "FORMAT"});
     });
+
+    const fill = document.getElementById("fill");
+    fill.addEventListener("click", async () => {
+        let tabs = await browser.tabs.query({active: true, currentWindow: true});
+        let port = browser.tabs.connect(tabs[0].id, {name: "popup-port"});
+        port.postMessage({ message: "FILL"});
+    });
 });
 
 function downloadFile(filename, textData) {
