@@ -82,8 +82,11 @@ async function format() {
         const q = questionsJson[i];
         const a = answersJson[i];
 
-        const question = `Question: ${q.question}; Passage: ${q.passage ? q.passage : ''}`;
+        const question = `${i + 1}# Question: ${q.question}; Passage: ${q.passage ? q.passage : ''}`;
         let options = q.options;
+        for (let j = 0; j < options.length; j++) {
+            options[j] = String(options[j].split("\n\n")[1]).substring(0, 8) + " " + options[j].split("\n\n")[0];
+        }
         let set = [];
         let answerIndex = indexOfLetter(a.answer);
         
@@ -94,6 +97,7 @@ async function format() {
             }
         }
 
+        console.log(set);
         let answer = set[0];
         set = shuffleArray(set);
 
