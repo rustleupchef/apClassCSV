@@ -59,6 +59,13 @@ async function fill() {
         const viewPort = document.querySelectorAll(".lrn-assess-content")[i];
         const options = viewPort.querySelectorAll(".lrn-mcq-option");
 
+        if (answersJson[i].answer === undefined) {
+            nextButton.click();
+            await sleep(1000);
+            nextButton = document.querySelector("[data-test-id='next-button']");
+            continue;
+        }
+
         const answerIndex = indexOfLetter(answersJson[i].answer);
         options[answerIndex - 1].children[0].click();
         await sleep(500);
