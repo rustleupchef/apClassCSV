@@ -11,7 +11,7 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     });
 
-    const answer = document.getElementById("answer");
+    const answer = document.getElementById("grab");
     answer.addEventListener("click", async () => {
         let tabs = await browser.tabs.query({active: true, currentWindow: true});
         let port = browser.tabs.connect(tabs[0].id, {name: "popup-port"});

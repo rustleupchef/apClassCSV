@@ -89,6 +89,10 @@ async function format() {
         const q = questionsJson[i];
         const a = answersJson[i];
 
+        if (a.answer === undefined) {
+            continue;
+        }
+
         const question = `${i + 1}# Question: ${q.question}; Passage: ${q.passage ? q.passage : ''}`;
         let options = q.options;
         for (let j = 0; j < options.length; j++) {
@@ -116,10 +120,7 @@ async function format() {
     downloadFile("formatted_questions.csv", csvText);
 }
 
-async function answer() {
-    const apiKey = prompt("Enter your API key or Type GRAB if you want don't care about the answer:");
-    const version = apiKey === "GRAB";
-    
+async function answer() {    
     const qTag = document.querySelector(".h-\\[32px\\] > span:nth-child(2)").innerText.split(" of ");
     const totalQuestion = parseInt(qTag[1]);
 
@@ -140,86 +141,6 @@ async function answer() {
         const passage = viewPort.querySelector(".passage");
         const questionImages = viewPort.querySelectorAll("img");
 
-        let imgParts = [];
-        for (const img of questionImages) {
-            const base64 = await getBase64FromImg(img);
-            imgParts.push({
-                inline_data: {
-                    mime_type: "image/png",
-                    data: base64
-                }
-            });
-        }
-
-        const promptParts = [
-            {text: "Question: " + question.innerText},
-            passage ? {text: "Passage: " + passage.innerText} : null,
-            ...imgParts,
-            {text: "Options: " + Array.from(options).map((opt, idx) => String.fromCharCode(65 + idx) + ". " + opt.innerText).join(" ")}
-        ].filter(Boolean);
-
-        const payload = {
-            system_instruction: {
-                parts: [
-                    {text: "Provide the correct answer option (A, B, C, or D) for the given question and options.\n\nYour are concise so you ONLY return the index of the letter (A = 1, B = 2, C = 3, D = 4, etc)."}
-                ]
-            },
-            contents: [
-                {role: "user", parts: promptParts}
-            ],
-            generation_config: {
-                maxOutputTokens: 1000,
-                temperature: 0.0,
-            }
-        };
-        
-        const url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=" + apiKey;
-
-        let data;
-        if (!version) {
-            let response = await fetch(url, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify(payload)
-            });
-            data = await response.json();
-        }
-
-        console.log(data);
-
-        if (!version && data.error) {
-            if (data.error.code === 503) {
-                await sleep(2 * 60 * 1000);
-            } else {
-                let message = data.error.message.split(" ");
-                let waitTime = message[message.length - 1];
-                if (waitTime.endsWith("ms.")) {
-                    await sleep(parseInt(waitTime.slice(0, -3)) + 1000);
-                } else {
-                    await sleep(parseInt(parseFloat(waitTime.slice(0, -2)) * 1000) + 1000);
-                }
-            }
-
-            response = await fetch(url, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify(payload)
-            });
-            data = await response.json();
-        }
-        console.log(data);
-
-        let text;
-        if (!version) {
-            try { text = data.candidates[0].content.parts[0].text.trim(); }
-            catch (e) { text = ""; }
-        }
-        console.log(text);
-
         csvText += `"Question:${question.innerText}\n${passage ? 'Passage' + passage.innerText : ''}",`
         for (let j = 0; j < options.length; j++) {
             csvText += `"${options[j].innerText}",`;
@@ -229,17 +150,18 @@ async function answer() {
             csvText += `"${questionImages[j].src}",`;
         }
 
-        csvText += !version ? `"${extractInteger(text)}"\n` : "\n"
+        csvText += "\n";
+
         jsonFormat.push({
             question: question.innerText,
             passage: passage ? passage.innerText : null,
             options: Array.from(options).map(opt => opt.innerText),
             images: Array.from(questionImages).map(img => img.src),
-            answer: !version ? extractInteger(text) : null
+            answer: null
         });
 
         nextButton.click();
-        await sleep(!version ? 4000 : 1000);
+        await sleep(1000);
         nextButton = document.querySelector("[data-test-id='next-button']");
     }
 
