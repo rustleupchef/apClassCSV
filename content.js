@@ -154,7 +154,7 @@ async function format() {
             continue;
         }
 
-        const question = `${i + 1}# Question: ${q.question}; Passage: ${q.passage ? q.passage : ''}`;
+        const question = `${i + 1}# Question: ${q.question}; Passage: ${q.passage ? q.passage : ''}`.replaceAll('"', '""');
         let options = q.options;
         for (let j = 0; j < options.length; j++) {
             options[j] = String(options[j].split("\n\n")[1]).substring(0, 8) + " " + options[j].split("\n\n")[0];
@@ -165,7 +165,7 @@ async function format() {
         set.push(options[answerIndex - 1]);
         for (let j = 0; j < options.length && set.length < 4; j++) {
             if (options[j] !== set[0]) {
-                set.push(options[j]);
+                set.push(options[j].replaceAll('"', '""'));
             }
         }
 
@@ -174,7 +174,6 @@ async function format() {
 
         let correctIndex = set.indexOf(answer) + 1;
 
-        console.log(question, set, correctIndex);
         csvText += `${i + 1},"${question}","${set[0] ? set[0] : ''}","${set[1] ? set[1] : ''}","${set[2] ? set[2] : ''}","${set[3] ? set[3] : ''}",20,"${correctIndex}"\n`;
     }
 
