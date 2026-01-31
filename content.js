@@ -10,6 +10,8 @@ browser.runtime.onConnect.addListener(port => {
                 format();
             } else if (msg.message === "FILL") {
                 fill();
+            } else if (msg.message === "CHECK") {
+                check();
             }
         });
     }
@@ -42,6 +44,60 @@ function indexOfLetter(letter) {
     return letter.toUpperCase().charCodeAt(0) - 65 + 1;
 }
 
+async function check() {
+    const qTag = document.querySelector(".h-\\[32px\\] > span:nth-child(2)").innerText.split(" of ");
+    const totalQuestion = parseInt(qTag[1]);
+
+    let answersJson = [];
+
+    if (parseInt(qTag[0]) !== 1) {
+        alert("Please make sure you are on the first question of the set.");
+        return;
+    }
+
+    for (let i = 0; i < totalQuestion; i++) {
+        console.log(i);
+        const nextButton = document.querySelector("[data-test-id='next-button']");
+        if (nextButton.disabled) {
+            i--;
+            await sleep(100);
+            continue;
+        }
+        await sleep(500);
+
+        const viewPort = document.querySelectorAll(".lrn-assess-content")[i];
+        const options = viewPort.querySelectorAll(".lrn-mcq-option");
+
+        let continueOn = false;
+        for (let j = 0; j < options.length; j++) {
+            if (options[j].classList.contains("lrn_selected")) {
+                continueOn = true;
+                answersJson.push({ answer: String.fromCharCode(65 + j).toUpperCase() });
+                break;
+            }
+        }
+
+        if (!continueOn) {
+            for (let j = 0; j < options.length; j++) {
+                options[j].children[0].click();
+                await sleep(500);
+                const button = document.querySelector(".h-16");
+                button.click();
+                await sleep(1000);
+                
+                if (options[j].classList.contains("lrn_correct")){
+                    answersJson.push({ answer: String.fromCharCode(65 + j).toUpperCase() });
+                    break;
+                }
+            }
+        }
+
+        nextButton.click();
+    }
+
+    downloadFile("checked_answers.json", JSON.stringify(answersJson, null, 2));
+}
+
 async function fill() {
     const answers = await selectFile('.json');
     const answersJson = JSON.parse(answers);
@@ -62,7 +118,7 @@ async function fill() {
             continue;
         }
         await sleep(500);
-        
+
         const viewPort = document.querySelectorAll(".lrn-assess-content")[i];
         const options = viewPort.querySelectorAll(".lrn-mcq-option");
 
@@ -113,13 +169,13 @@ async function format() {
             }
         }
 
-        console.log(set);
         let answer = set[0];
         set = shuffleArray(set);
 
         let correctIndex = set.indexOf(answer) + 1;
 
-        csvText += `${i + 1},"${question}","${set[0] ? set[0] : ""}","${set[1] ? set[1] : ""}","${set[2] ? set[2] : ""}","${set[3] ? set[3] : ""}",20,"${correctIndex}"\n`;
+        console.log(question, set, correctIndex);
+        csvText += `${i + 1},"${question}","${set[0] ? set[0] : ''}","${set[1] ? set[1] : ''}","${set[2] ? set[2] : ''}","${set[3] ? set[3] : ''}",20,"${correctIndex}"\n`;
     }
 
     downloadFile("formatted_questions.csv", csvText);
