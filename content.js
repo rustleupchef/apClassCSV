@@ -54,8 +54,15 @@ async function fill() {
         return;
     }
 
-    let nextButton = document.querySelector("[data-test-id='next-button']");
     for (let i = 0; i < totalQuestion; i++) {
+        const nextButton = document.querySelector("[data-test-id='next-button']");
+        if (nextButton.disabled) {
+            i--;
+            await sleep(100);
+            continue;
+        }
+        await sleep(500);
+        
         const viewPort = document.querySelectorAll(".lrn-assess-content")[i];
         const options = viewPort.querySelectorAll(".lrn-mcq-option");
 
@@ -71,8 +78,6 @@ async function fill() {
         await sleep(500);
 
         nextButton.click();
-        await sleep(1000);
-        nextButton = document.querySelector("[data-test-id='next-button']");
     }
 }
 
@@ -131,9 +136,16 @@ async function answer() {
         return;
     }
 
-    let nextButton = document.querySelector("[data-test-id='next-button']");
     let csvText = "";
     for (let i = 0; i < totalQuestion; i++) {
+        const nextButton = document.querySelector("[data-test-id='next-button']");
+        if (nextButton.disabled) {
+            i--;
+            await sleep(100);
+            continue;
+        }
+        await sleep(500);
+
         const viewPort = document.querySelectorAll(".lrn-assess-content")[i];
         
         const question = viewPort.querySelector(".lrn_question");
@@ -161,11 +173,9 @@ async function answer() {
         });
 
         nextButton.click();
-        await sleep(1000);
-        nextButton = document.querySelector("[data-test-id='next-button']");
     }
 
-    downloadFile("answers.csv", csvText);
+    downloadFile("answers.txt", csvText);
     downloadFile("answers.json", JSON.stringify(jsonFormat, null, 2));
 }
 
