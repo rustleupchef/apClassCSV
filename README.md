@@ -1,7 +1,7 @@
 ## AP Class to CSV
 This is a firefox extension that is able to convert the results of an AP Classroom asignment into a CSV so that it can be handled by Blooket.
 
-## Usage
+## Installation
 ### Raw
 - download release
 - extract
