@@ -124,8 +124,6 @@ async function fill() {
 
         if (answersJson[i].answer === undefined) {
             nextButton.click();
-            await sleep(1000);
-            nextButton = document.querySelector("[data-test-id='next-button']");
             continue;
         }
 
